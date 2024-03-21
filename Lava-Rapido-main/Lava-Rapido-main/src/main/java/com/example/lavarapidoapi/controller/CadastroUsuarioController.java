@@ -1,11 +1,12 @@
 package com.example.lavarapidoapi.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.List;
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,13 +24,13 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.lavarapidoapi.model.CadastroUsuario;
 import com.example.lavarapidoapi.repository.CadastroUsuarioRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
 @RestController
 @RequestMapping("cadastrousuario")
+@Slf4j
 public class CadastroUsuarioController{
     //Criacao de uma lista para armazenar dados de cadastro!
-
-    Logger log = LoggerFactory.getLogger(getClass());
-
     @Autowired
     CadastroUsuarioRepository cadastroUsuarioRepository;
 
@@ -43,8 +44,7 @@ public class CadastroUsuarioController{
     @ResponseStatus(code = HttpStatus.CREATED)
     public CadastroUsuario create(@RequestBody CadastroUsuario cadastroUsuario){
         log.info("Cadastrando usuario: {}", cadastroUsuario);
-        cadastroUsuarioRepository.save(cadastroUsuario);
-        return cadastroUsuario;
+        return cadastroUsuarioRepository.save(cadastroUsuario);
     }
     @GetMapping("{id}")
     public ResponseEntity<CadastroUsuario> get(@PathVariable Long id){
@@ -57,25 +57,22 @@ public class CadastroUsuarioController{
     }
     //Exclui um cadastro pelo ID
     @DeleteMapping("{id}")
-    public ResponseEntity<Object> destroy(@PathVariable Long id){
+    @ResponseStatus(NO_CONTENT)
+    public void destroy(@PathVariable Long id){
         log.info("Apagando cadastro {}", id);
 
         verificarSeExisteCadastro(id);
-
         cadastroUsuarioRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
-
     }
     //Atualiza um cadastro existente
     @PutMapping("{id}")
-    public ResponseEntity<Object> update(@PathVariable Long id, @RequestBody CadastroUsuario cadastro) {
+    public CadastroUsuario update (@PathVariable Long id, @RequestBody CadastroUsuario cadastro) {
         log.info("Atualizando cadastro pelo id {} para {}", id, cadastro);
         
         verificarSeExisteCadastro(id);
 
         cadastro.setId(id);
-        cadastroUsuarioRepository.save(cadastro);
-        return ResponseEntity.ok(cadastro);
+        return cadastroUsuarioRepository.save(cadastro);
     }
     //Metodo privado para que se busque um cadastro pelo ID, sendo utilizado somente por funcionarios do lava-rapido
     private void verificarSeExisteCadastro(Long id) {
